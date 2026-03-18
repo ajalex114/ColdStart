@@ -1,0 +1,19 @@
+﻿<Application x:Class="ColdStart.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <!-- Dark theme brushes -->
+        <SolidColorBrush x:Key="BgBrush" Color="#0f1117"/>
+        <SolidColorBrush x:Key="SurfaceBrush" Color="#1a1d27"/>
+        <SolidColorBrush x:Key="Surface2Brush" Color="#242835"/>
+        <SolidColorBrush x:Key="BorderBrush" Color="#2e3347"/>
+        <SolidColorBrush x:Key="TextBrush" Color="#e4e6f0"/>
+        <SolidColorBrush x:Key="TextDimBrush" Color="#8b8fa5"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="#6c8cff"/>
+        <SolidColorBrush x:Key="GreenBrush" Color="#4ade80"/>
+        <SolidColorBrush x:Key="YellowBrush" Color="#facc15"/>
+        <SolidColorBrush x:Key="RedBrush" Color="#f87171"/>
+        <SolidColorBrush x:Key="OrangeBrush" Color="#fb923c"/>
+    </Application.Resources>
+</Application>
