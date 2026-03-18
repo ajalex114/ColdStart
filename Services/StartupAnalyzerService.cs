@@ -3,12 +3,17 @@ using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Management;
 using ColdStart.Models;
+using ColdStart.Services.Interfaces;
 using Microsoft.Win32;
 
 namespace ColdStart.Services;
 
-public class StartupAnalyzerService
+/// <summary>
+/// Analyzes Windows startup items from Registry, Startup Folder, Scheduled Tasks, Services, and UWP apps.
+/// </summary>
+public class StartupAnalyzerService : IStartupAnalyzerService
 {
+    /// <inheritdoc />
     public StartupAnalysis Analyze()
     {
         var runningProcesses = GetRunningProcessNames();
@@ -61,7 +66,23 @@ public class StartupAnalyzerService
         var high = items.Count(i => i.Impact == "high" && !i.Essential);
         var med = items.Count(i => i.Impact == "medium" && !i.Essential);
         var canDisable = items.Count(i => i.Action is "can_disable" or "safe_to_disable");
-        var estSavings = Math.Round(high * 3.5 + med * 1.5, 1);
+
+        // Estimate savings using actual degradation data where available,
+        // impact-based estimates otherwise. "Process" timing is boot-offset, not duration,
+        // so it cannot be used for savings.
+        var estSavingsMs = items
+            .Where(i => !i.Essential && i.Action is "can_disable" or "safe_to_disable" or "review")
+            .Sum(i => i.TimingSource switch
+            {
+                "Measured" => i.StartupTimeMs,  // real degradation time from event log
+                _ => i.Impact switch            // fallback to impact-based estimate
+                {
+                    "high"   => 4000L,
+                    "medium" => 1500L,
+                    _        => 500L,
+                },
+            });
+        var estSavings = Math.Round(estSavingsMs / 1000.0, 1);
 
         return new StartupAnalysis
         {
@@ -621,11 +642,21 @@ public class StartupAnalyzerService
             while (reader.ReadEvent() is { } evt && count < 20)
             {
                 var xml = evt.ToXml();
+                var totalMs = ExtractLong(xml, "TotalTime");
+                var friendlyName = ExtractStr(xml, "FriendlyName");
+                var path = ExtractStr(xml, "Name") ?? "";
+                var name = friendlyName
+                    ?? DeriveNameFromPath(path)
+                    ?? "Unknown";
+
+                if (name == "Unknown" || totalMs <= 0)
+                    continue;
+
                 result.DegradingApps.Add(new DegradingApp
                 {
-                    Name = ExtractStr(xml, "FriendlyName") ?? ExtractStr(xml, "Name") ?? "Unknown",
-                    Path = ExtractStr(xml, "Name") ?? "",
-                    TotalMs = ExtractLong(xml, "TotalTime"),
+                    Name = name,
+                    Path = path,
+                    TotalMs = totalMs,
                     DegradationMs = ExtractLong(xml, "DegradationTime"),
                 });
                 count++;
@@ -694,5 +725,15 @@ public class StartupAnalyzerService
         if (end < 0) return null;
         var val = xml[start..end].Trim();
         return string.IsNullOrEmpty(val) ? null : val;
+    }
+
+    /// <summary>
+    /// Derives a human-readable name from an executable path (e.g. "C:\...\OneDrive.exe" → "OneDrive").
+    /// </summary>
+    private static string? DeriveNameFromPath(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path)) return null;
+        var fileName = Path.GetFileNameWithoutExtension(path);
+        return string.IsNullOrEmpty(fileName) ? null : fileName;
     }
 }

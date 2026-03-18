@@ -1,11 +1,16 @@
 using System.Management;
 using System.Runtime.InteropServices;
 using ColdStart.Models;
+using ColdStart.Services.Interfaces;
 
 namespace ColdStart.Services;
 
-public class SystemInfoService
+/// <summary>
+/// Retrieves system hardware and software information via WMI queries.
+/// </summary>
+public class SystemInfoService : ISystemInfoService
 {
+    /// <inheritdoc />
     public SystemInfo GetSystemInfo()
     {
         var uptime = TimeSpan.FromMilliseconds(Environment.TickCount64);

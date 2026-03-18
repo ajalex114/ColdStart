@@ -2,15 +2,16 @@ using System.Diagnostics;
 using System.IO;
 using System.Management;
 using ColdStart.Models;
+using ColdStart.Services.Interfaces;
 
 namespace ColdStart.Services;
 
-public class AppUsageService
+/// <summary>
+/// Monitors real-time application resource usage including memory, CPU, and session duration.
+/// </summary>
+public class AppUsageService : IAppUsageService
 {
-    /// <summary>
-    /// Gathers app usage data: memory, CPU, session duration for all user-facing apps.
-    /// Takes two snapshots ~1s apart to calculate CPU%.
-    /// </summary>
+    /// <inheritdoc />
     public AppUsageData GetAppUsage(List<StartupItem>? startupItems = null)
     {
         // Snapshot 1: capture CPU times
