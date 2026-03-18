@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ColdStart.csproj" />
+    <ProjectReference Include="..\..\src\ColdStart\ColdStart.csproj" />
   </ItemGroup>
 
 </Project>
