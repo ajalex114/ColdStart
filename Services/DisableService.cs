@@ -1,14 +1,21 @@
 using System.Diagnostics;
 using System.IO;
 using ColdStart.Models;
+using ColdStart.Services.Interfaces;
 using Microsoft.Win32;
 
 namespace ColdStart.Services;
 
-public static class DisableService
+/// <summary>
+/// Provides methods to disable startup items via Registry, Startup Folder, Task Scheduler, or Services.
+/// </summary>
+public class DisableService : IDisableService
 {
-    public static (bool Success, string Message) Disable(StartupItem item)
+    /// <inheritdoc />
+    public (bool Success, string Message) Disable(StartupItem item)
     {
+        ArgumentNullException.ThrowIfNull(item);
+
         try
         {
             return item.DisableMethod switch

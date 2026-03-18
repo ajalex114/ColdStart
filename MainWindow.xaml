@@ -1,6 +1,7 @@
-﻿<Window x:Class="ColdStart.MainWindow"
+<Window x:Class="ColdStart.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:ColdStart.Views.Controls"
         Title="ColdStart — Startup Performance Inspector" Height="780" Width="960" MinHeight="500" MinWidth="700"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource BgBrush}">
@@ -114,23 +115,9 @@
 
         <!-- ═══ CONTENT ═══ -->
         <Grid Grid.Row="2">
-            <!-- Startup Panel -->
-            <ScrollViewer x:Name="StartupPanel" VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled">
-                <StackPanel x:Name="StartupContent" Margin="0,0,6,0"/>
-            </ScrollViewer>
-
-            <!-- Timeline Panel -->
-            <ScrollViewer x:Name="TimelinePanel" VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed">
-                <StackPanel x:Name="TimelineContent" Margin="0,0,6,0"/>
-            </ScrollViewer>
-
-            <!-- Performance Panel -->
-            <ScrollViewer x:Name="PerfPanel" VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed">
-                <StackPanel x:Name="PerfContent" Margin="0,0,6,0"/>
-            </ScrollViewer>
+            <controls:StartupView x:Name="StartupView"/>
+            <controls:TimelineView x:Name="TimelineView" Visibility="Collapsed"/>
+            <controls:AppUsageView x:Name="AppUsageView" Visibility="Collapsed"/>
         </Grid>
     </Grid>
 </Window>
