@@ -10,11 +10,41 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!-- ═══ ADMIN BANNER ═══ -->
+        <Border x:Name="AdminBanner" Grid.Row="0" CornerRadius="8"
+                Background="#2563eb" Padding="12,8" Margin="0,0,0,10"
+                Visibility="Collapsed">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="🛡️  Running with limited permissions. Some features (disabling startup items, full boot diagnostics) require admin."
+                           Foreground="White" FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                <Button x:Name="RestartAsAdminBtn" Grid.Column="1" Content="🔒  Restart as Admin"
+                        Click="RestartAsAdmin_Click"
+                        Style="{x:Null}" FontSize="12" FontWeight="SemiBold"
+                        Foreground="White" Background="#1d4ed8" Cursor="Hand"
+                        Padding="14,6" Margin="12,0,0,0" BorderThickness="0"
+                        ToolTip="Restart this application with administrator privileges">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="6"
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+        </Border>
+
         <!-- ═══ HEADER ═══ -->
-        <Grid Grid.Row="0" Margin="0,0,0,14">
+        <Grid Grid.Row="1" Margin="0,0,0,14">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -66,7 +96,7 @@
         </Grid>
 
         <!-- ═══ TABS ═══ -->
-        <Border x:Name="TabBarBorder" Grid.Row="1" CornerRadius="10"
+        <Border x:Name="TabBarBorder" Grid.Row="2" CornerRadius="10"
                 Padding="4" Margin="0,0,0,16" HorizontalAlignment="Left">
             <StackPanel Orientation="Horizontal">
                 <Button x:Name="StartupTabBtn" Content="⚡  Startup Analysis" Click="StartupTab_Click"
@@ -114,7 +144,7 @@
         </Border>
 
         <!-- ═══ CONTENT ═══ -->
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="3">
             <controls:StartupView x:Name="StartupView"/>
             <controls:TimelineView x:Name="TimelineView" Visibility="Collapsed"/>
             <controls:AppUsageView x:Name="AppUsageView" Visibility="Collapsed"/>

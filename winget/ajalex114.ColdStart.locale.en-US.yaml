@@ -1,0 +1,32 @@
+# Created using winget CLI
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.6.0.schema.json
+
+PackageIdentifier: ajalex114.ColdStart
+PackageVersion: 1.0.0
+PackageLocale: en-US
+Publisher: ajalex114
+PublisherUrl: https://github.com/ajalex114
+PublisherSupportUrl: https://github.com/ajalex114/ColdStart/issues
+Author: ajalex114
+PackageName: ColdStart
+PackageUrl: https://github.com/ajalex114/ColdStart
+License: MIT
+LicenseUrl: https://github.com/ajalex114/ColdStart/blob/main/LICENSE
+ShortDescription: Startup Performance Inspector — identify what's slowing down your Windows startup
+Description: |-
+  ColdStart is a Windows desktop application that analyzes your system's startup
+  performance. It scans startup items from the Registry, Startup Folder, Scheduled
+  Tasks, and Services, then provides actionable recommendations to speed up your
+  boot time. Features include a visual timeline, app usage monitoring, and the
+  ability to safely disable unnecessary startup items.
+Tags:
+  - startup
+  - performance
+  - windows
+  - boot
+  - optimization
+  - system-analyzer
+  - wpf
+  - dotnet
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0

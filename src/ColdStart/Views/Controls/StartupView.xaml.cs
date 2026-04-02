@@ -1071,16 +1071,20 @@ public partial class StartupView : UserControl
         if (item.Essential || item.Action == "keep" || item.DisableMethod == DisableMethod.Unknown)
             return;
 
+        var isAdmin = AdminHelper.IsAdmin();
         var btnColor = ThemeManager.B(item.Action == "safe_to_disable" ? "#16a34a" : "#d97706");
         var btn = new Button
         {
-            Content = "🚫  Disable from Startup",
+            Content = isAdmin ? "🚫  Disable from Startup" : "🛡️  Disable from Startup (requires Admin)",
             FontSize = 13, FontWeight = FontWeights.SemiBold,
             Foreground = Brushes.White, Cursor = Cursors.Hand,
             Padding = new Thickness(20, 10, 20, 10),
             Margin = new Thickness(0, 10, 0, 0),
             HorizontalAlignment = HorizontalAlignment.Left,
             BorderThickness = new Thickness(0),
+            IsEnabled = isAdmin,
+            Opacity = isAdmin ? 1.0 : 0.6,
+            ToolTip = isAdmin ? null : "Restart ColdStart as Administrator to enable this feature",
         };
         btn.Template = CreateButtonTemplate(Theme, btnColor);
 

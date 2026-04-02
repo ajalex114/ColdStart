@@ -59,6 +59,9 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool _isSystemInfoLoaded;
 
+    /// <summary>Indicates whether the current process is running with administrator privileges.</summary>
+    public bool IsAdmin { get; } = AdminHelper.IsAdmin();
+
     // ── Child view-models ────────────────────────────────────
 
     /// <summary>View-model for the Startup tab.</summary>

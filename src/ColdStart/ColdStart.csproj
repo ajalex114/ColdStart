@@ -7,6 +7,15 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+
+    <!-- Metadata for packaging -->
+    <AssemblyName>ColdStart</AssemblyName>
+    <RootNamespace>ColdStart</RootNamespace>
+    <Version>1.0.0</Version>
+    <Authors>ajalex114</Authors>
+    <Product>ColdStart</Product>
+    <Description>Startup Performance Inspector — identify what's slowing down your Windows startup</Description>
+    <Copyright>Copyright © 2026 ajalex114</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
