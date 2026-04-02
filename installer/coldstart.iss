@@ -40,8 +40,8 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 
 [Files]
 Source: "..\src\ColdStart\bin\publish\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\src\ColdStart\bin\publish\*.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not IsSingleFile
-Source: "..\src\ColdStart\bin\publish\*.json"; DestDir: "{app}"; Flags: ignoreversion; Check: not IsSingleFile
+Source: "..\src\ColdStart\bin\publish\*.dll"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
+Source: "..\src\ColdStart\bin\publish\*.json"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -60,11 +60,6 @@ Filename: "{app}\{#MyAppExeName}"; Parameters: "--uninstall"; Flags: runhidden w
 Type: filesandordirs; Name: "{localappdata}\ColdStart"
 
 [Code]
-function IsSingleFile: Boolean;
-begin
-  Result := not FileExists(ExpandConstant('{app}\ColdStart.deps.json'));
-end;
-
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
   if CurUninstallStep = usPostUninstall then
