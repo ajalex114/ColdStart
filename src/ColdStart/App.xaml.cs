@@ -18,6 +18,15 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        // Handle --uninstall flag: reverse all changes and clean up silently
+        if (e.Args.Contains("--uninstall", StringComparer.OrdinalIgnoreCase))
+        {
+            UninstallHelper.ReverseAllChanges();
+            UninstallHelper.CleanupAppData();
+            Shutdown(0);
+            return;
+        }
+
         // Services
         ISystemInfoService sysInfo = new SystemInfoService();
         IStartupAnalyzerService startup = new StartupAnalyzerService();
@@ -32,4 +41,3 @@ public partial class App : Application
         window.Show();
     }
 }
-

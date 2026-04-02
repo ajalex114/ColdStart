@@ -8,9 +8,12 @@ namespace ColdStart.Services;
 
 /// <summary>
 /// Provides methods to disable startup items via Registry, Startup Folder, Task Scheduler, or Services.
+/// Records all changes via <see cref="ChangeTracker"/> so they can be reversed on uninstall.
 /// </summary>
 public class DisableService : IDisableService
 {
+    private readonly ChangeTracker _tracker = new();
+
     /// <inheritdoc />
     public (bool Success, string Message) Disable(StartupItem item)
     {
@@ -29,7 +32,7 @@ public class DisableService : IDisableService
         }
         catch (UnauthorizedAccessException)
         {
-            return (false, "Administrator privileges are required to disable this item. Right-click the app and select 'Run as Administrator'.");
+            return (false, "Administrator privileges are required to disable this item. Restart ColdStart as Administrator.");
         }
         catch (Exception ex)
         {
@@ -37,31 +40,34 @@ public class DisableService : IDisableService
         }
     }
 
-    private static (bool, string) DisableRegistry(StartupItem item)
+    private (bool, string) DisableRegistry(StartupItem item)
     {
         if (string.IsNullOrEmpty(item.RegistryKeyPath) || string.IsNullOrEmpty(item.RegistryValueName))
             return (false, "Registry path not available for this item.");
 
-        // Determine root key
         RegistryKey? rootKey = null;
         string subPath = item.RegistryKeyPath;
+        string rootKeyName;
 
         if (subPath.StartsWith("HKLM\\", StringComparison.OrdinalIgnoreCase) ||
             subPath.StartsWith("HKEY_LOCAL_MACHINE\\", StringComparison.OrdinalIgnoreCase))
         {
             rootKey = Registry.LocalMachine;
+            rootKeyName = "HKLM";
             subPath = subPath.Substring(subPath.IndexOf('\\') + 1);
         }
         else if (subPath.StartsWith("HKCU\\", StringComparison.OrdinalIgnoreCase) ||
                  subPath.StartsWith("HKEY_CURRENT_USER\\", StringComparison.OrdinalIgnoreCase))
         {
             rootKey = Registry.CurrentUser;
+            rootKeyName = "HKCU";
             subPath = subPath.Substring(subPath.IndexOf('\\') + 1);
         }
         else
         {
-            // Try to infer from scope
-            rootKey = item.Scope.Contains("Current User") ? Registry.CurrentUser : Registry.LocalMachine;
+            var isCurrentUser = item.Scope.Contains("Current User");
+            rootKey = isCurrentUser ? Registry.CurrentUser : Registry.LocalMachine;
+            rootKeyName = isCurrentUser ? "HKCU" : "HKLM";
             subPath = item.RegistryKeyPath;
         }
 
@@ -69,29 +75,39 @@ public class DisableService : IDisableService
         if (key == null)
             return (false, "Could not open the registry key. You may need Administrator privileges.");
 
-        // Backup the value to a "disabled" subkey before deleting
         var val = key.GetValue(item.RegistryValueName);
+        var backupSubPath = subPath + @"\AutorunsDisabled";
         if (val != null)
         {
             try
             {
-                using var backupKey = rootKey.CreateSubKey(subPath + @"\AutorunsDisabled");
+                using var backupKey = rootKey.CreateSubKey(backupSubPath);
                 backupKey?.SetValue(item.RegistryValueName, val);
             }
             catch { /* backup is best-effort */ }
         }
 
         key.DeleteValue(item.RegistryValueName, throwOnMissingValue: false);
+
+        _tracker.RecordDisable(new DisableRecord
+        {
+            ItemName = item.Name,
+            ActionType = DisableActionType.RegistryValueRemoved,
+            RegistryRootKey = rootKeyName,
+            RegistrySubPath = subPath,
+            RegistryValueName = item.RegistryValueName,
+            RegistryBackupSubPath = backupSubPath,
+        });
+
         return (true, $"✓ Removed \"{item.RegistryValueName}\" from startup registry. It will no longer run at login.");
     }
 
-    private static (bool, string) DisableStartupFolder(StartupItem item)
+    private (bool, string) DisableStartupFolder(StartupItem item)
     {
         var path = item.ShortcutPath;
         if (string.IsNullOrEmpty(path) || !File.Exists(path))
             return (false, "Shortcut file not found. It may have already been removed.");
 
-        // Move to a "Disabled" subfolder for recovery
         var dir = Path.GetDirectoryName(path)!;
         var disabledDir = Path.Combine(dir, "Disabled");
         Directory.CreateDirectory(disabledDir);
@@ -100,10 +116,18 @@ public class DisableService : IDisableService
         if (File.Exists(dest)) File.Delete(dest);
         File.Move(path, dest);
 
+        _tracker.RecordDisable(new DisableRecord
+        {
+            ItemName = item.Name,
+            ActionType = DisableActionType.ShortcutMoved,
+            OriginalShortcutPath = path,
+            MovedShortcutPath = dest,
+        });
+
         return (true, $"✓ Moved startup shortcut to the Disabled folder. To re-enable, move it back from:\n{dest}");
     }
 
-    private static (bool, string) DisableScheduledTask(StartupItem item)
+    private (bool, string) DisableScheduledTask(StartupItem item)
     {
         var taskPath = item.TaskFullPath;
         if (string.IsNullOrEmpty(taskPath))
@@ -125,12 +149,21 @@ public class DisableService : IDisableService
         var error = proc?.StandardError.ReadToEnd() ?? "";
 
         if (proc?.ExitCode == 0)
+        {
+            _tracker.RecordDisable(new DisableRecord
+            {
+                ItemName = item.Name,
+                ActionType = DisableActionType.ScheduledTaskDisabled,
+                TaskFullPath = taskPath,
+            });
+
             return (true, $"✓ Scheduled task \"{item.Name}\" has been disabled. To re-enable, open Task Scheduler.");
-        else
-            return (false, $"Failed: {(string.IsNullOrEmpty(error) ? output : error).Trim()}\nYou may need to run as Administrator.");
+        }
+
+        return (false, $"Failed: {(string.IsNullOrEmpty(error) ? output : error).Trim()}\nYou may need to run as Administrator.");
     }
 
-    private static (bool, string) DisableAutoService(StartupItem item)
+    private (bool, string) DisableAutoService(StartupItem item)
     {
         var svcName = item.ServiceName;
         if (string.IsNullOrEmpty(svcName))
@@ -152,8 +185,18 @@ public class DisableService : IDisableService
         var error = proc?.StandardError.ReadToEnd() ?? "";
 
         if (proc?.ExitCode == 0)
+        {
+            _tracker.RecordDisable(new DisableRecord
+            {
+                ItemName = item.Name,
+                ActionType = DisableActionType.ServiceStartTypeChanged,
+                ServiceName = svcName,
+                PreviousStartType = "auto",
+            });
+
             return (true, $"✓ Service \"{item.Name}\" changed from Auto to Manual start. It will no longer start automatically.\nTo re-enable: services.msc → {item.Name} → Startup type → Automatic.");
-        else
-            return (false, $"Failed: {(string.IsNullOrEmpty(error) ? output : error).Trim()}\nYou may need to run as Administrator.");
+        }
+
+        return (false, $"Failed: {(string.IsNullOrEmpty(error) ? output : error).Trim()}\nYou may need to run as Administrator.");
     }
 }

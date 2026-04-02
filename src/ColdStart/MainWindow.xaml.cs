@@ -44,6 +44,10 @@ public partial class MainWindow : Window
         // Keyboard shortcuts
         KeyDown += OnGlobalKeyDown;
 
+        // Show admin banner if not elevated
+        if (!_vm.IsAdmin)
+            AdminBanner.Visibility = Visibility.Visible;
+
         // Initial theme
         ApplyThemeToShell();
 
@@ -137,6 +141,12 @@ public partial class MainWindow : Window
     private void StartupTab_Click(object sender, RoutedEventArgs e) => SwitchTab(0);
     private void TimelineTab_Click(object sender, RoutedEventArgs e) => SwitchTab(1);
     private void PerfTab_Click(object sender, RoutedEventArgs e) => SwitchTab(2);
+
+    private void RestartAsAdmin_Click(object sender, RoutedEventArgs e)
+    {
+        if (AdminHelper.RestartAsAdmin())
+            Application.Current.Shutdown();
+    }
 
     // ── Keyboard shortcuts ──────────────────────────────────
 
