@@ -16,6 +16,7 @@
     <Product>ColdStart</Product>
     <Description>Startup Performance Inspector — identify what's slowing down your Windows startup</Description>
     <Copyright>Copyright © 2026 ajalex114</Copyright>
+    <ApplicationIcon>Assets\coldstart.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

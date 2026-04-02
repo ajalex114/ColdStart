@@ -22,7 +22,7 @@ AllowNoIcons=yes
 LicenseFile=
 OutputDir=..\dist
 OutputBaseFilename=ColdStartSetup-{#MyAppVersion}
-; SetupIconFile=..\src\ColdStart\Assets\coldstart.ico
+SetupIconFile=..\src\ColdStart\Assets\coldstart.ico
 Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
@@ -30,6 +30,9 @@ PrivilegesRequired=admin
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 UninstallDisplayIcon={app}\{#MyAppExeName}
+UninstallDisplayName={#MyAppName}
+CloseApplications=force
+RestartApplications=no
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -42,11 +45,12 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 Source: "..\src\ColdStart\bin\publish\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\src\ColdStart\bin\publish\*.dll"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 Source: "..\src\ColdStart\bin\publish\*.json"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
+Source: "..\src\ColdStart\Assets\coldstart.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\coldstart.ico"
+Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"; IconFilename: "{app}\coldstart.ico"
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\coldstart.ico"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
@@ -56,8 +60,9 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChang
 Filename: "{app}\{#MyAppExeName}"; Parameters: "--uninstall"; Flags: runhidden waituntilterminated skipifdoesntexist
 
 [UninstallDelete]
-; Remove app data directory
+; Remove app data directory and install directory leftovers
 Type: filesandordirs; Name: "{localappdata}\ColdStart"
+Type: filesandordirs; Name: "{app}"
 
 [Code]
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
@@ -66,5 +71,7 @@ begin
   begin
     // Clean up any remaining app data
     DelTree(ExpandConstant('{localappdata}\ColdStart'), True, True, True);
+    // Remove the install directory (handles leftover files the main uninstall couldn't delete)
+    DelTree(ExpandConstant('{app}'), True, True, True);
   end;
 end;

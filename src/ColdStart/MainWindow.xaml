@@ -4,6 +4,7 @@
         xmlns:controls="clr-namespace:ColdStart.Views.Controls"
         Title="ColdStart — Startup Performance Inspector" Height="780" Width="960" MinHeight="500" MinWidth="700"
         WindowStartupLocation="CenterScreen"
+        Icon="Assets/coldstart.ico"
         Background="{StaticResource BgBrush}">
 
     <Grid Margin="24,16,24,24">
