@@ -11,7 +11,7 @@
 AppId={{B8F3A2C1-7D4E-4F5A-9B6C-1E2D3F4A5B6C}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-AppVerName={#MyAppName} {#MyAppVersion}
+AppVerName={#MyAppName}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}/issues
@@ -21,7 +21,7 @@ DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 LicenseFile=
 OutputDir=..\dist
-OutputBaseFilename=ColdStartSetup-{#MyAppVersion}
+OutputBaseFilename=ColdStartSetup
 SetupIconFile=..\src\ColdStart\Assets\coldstart.ico
 Compression=lzma2/ultra64
 SolidCompression=yes
