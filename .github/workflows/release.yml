@@ -98,7 +98,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coldstart-installer
-          path: dist/ColdStartSetup-*.exe
+          path: dist/ColdStartSetup.exe
 
   msix:
     needs: build
@@ -165,7 +165,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coldstart-msix
-          path: dist/ColdStart-*.msix
+          path: dist/ColdStart.msix
 
   release:
     needs: [installer, msix]
@@ -198,16 +198,16 @@ jobs:
           prerelease: false
           generate_release_notes: true
           files: |
-            artifacts/ColdStartSetup-*.exe
-            artifacts/ColdStart-*.msix
+            artifacts/ColdStartSetup.exe
+            artifacts/ColdStart.msix
           body: |
             ## Installation Options
 
             ### 💿 EXE Installer (Recommended)
-            Download `ColdStartSetup-${{ steps.version.outputs.VERSION }}.exe` and run it. Includes Start Menu + desktop shortcuts and an uninstaller.
+            Download `ColdStartSetup.exe` and run it. Includes Start Menu + desktop shortcuts and an uninstaller.
 
             ### 📦 MSIX Package
-            Download `ColdStart-${{ steps.version.outputs.VERSION }}.msix` for sideloading or Microsoft Store submission.
+            Download `ColdStart.msix` for sideloading or Microsoft Store submission.
 
             ### 🍫 Winget (after manifest is accepted)
             ```

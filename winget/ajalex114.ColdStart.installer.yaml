@@ -14,8 +14,8 @@ UpgradeBehavior: install
 Installers:
   - Architecture: x64
     # UPDATE THIS URL after creating your first GitHub Release
-    InstallerUrl: https://github.com/ajalex114/ColdStart/releases/download/v1.0.0/ColdStartSetup-1.0.0.exe
-    # UPDATE THIS HASH after the installer is built (use: Get-FileHash .\ColdStartSetup-1.0.0.exe -Algorithm SHA256)
+    InstallerUrl: https://github.com/ajalex114/ColdStart/releases/download/v1.0.0/ColdStartSetup.exe
+    # UPDATE THIS HASH after the installer is built (use: Get-FileHash .\ColdStartSetup.exe -Algorithm SHA256)
     InstallerSha256: UPDATE_WITH_ACTUAL_SHA256_HASH
 ManifestType: installer
 ManifestVersion: 1.6.0

@@ -71,7 +71,7 @@ $priConfig = @"
 "@
 
 # Pack MSIX
-$msixPath = Join-Path $OutputDir "ColdStart-$Version.msix"
+$msixPath = Join-Path $OutputDir "ColdStart.msix"
 Write-Host "Packing MSIX..."
 & $makeappx.FullName pack /d $staging /p $msixPath /o
 if ($LASTEXITCODE -ne 0) { Write-Error "makeappx pack failed"; exit 1 }
